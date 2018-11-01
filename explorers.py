@@ -8,6 +8,9 @@ from degrees import AnalyticsNCSUDegree, DataSciGradProgramsDegree
 
 class Explorer:
 
+    def __init__(self):
+        self.degrees = []
+
     def request_html(self, url):
         """
         Download html content from 'url' using HTTP GET request.
@@ -36,6 +39,10 @@ class Explorer:
         return (resp.status_code == 200
                 and content_type is not None
                 and content_type.find('html') > -1)
+
+    @property
+    def degree_count(self):
+        return len(self.degrees)
 
 
 class AnalyticsNCSUExplorer(Explorer):
