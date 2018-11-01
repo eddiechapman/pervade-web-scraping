@@ -28,11 +28,38 @@ class AnalyticsNCSUDegree(Degree):
 
     def __init__(self, html):
         super()
+        self.tag = str(html)
         self.source = 'Analytics NCSU'
         self.source_url = 'https://analytics.ncsu.edu/?page_id=4184'
         self.source_notes = []
+        try:
+            self.url = html.a["href"]
+        except Exception:
+            self.url = None
 
-        self.first_enrolled = html.find_previous('h3').string #TODO: Save only integer year
-        self.url = html.a['href']
-        html.a.clear()
-        print(html)
+        try:
+            self.first_enrolled = int(html.find_previous('h3').string.replace('\u2022', '').strip())
+        except Exception:
+            self.first_enrolled = None
+
+        try:
+            self.degree = html.a.string
+        except Exception:
+            self.degree = None
+
+        try:
+            html.a.decompose()
+            text = html.string.strip().split(',')
+            text = [text.strip() for text in text if text is not '']
+            if len(text) is 2:
+                self.university = text[0]
+                self.department = text[1]
+            else:
+                self.university = ','.join(text)
+                self.department = ','.join(text)
+        except Exception:
+            self.university = None
+            self.department = None
+
+
+
