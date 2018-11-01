@@ -42,12 +42,6 @@ class Explorer:
                 and content_type is not None
                 and content_type.find('html') > -1)
 
-    def generate_degrees(self, degree_type):
-
-        for tag in self.degree_tags:
-            degree = degree_type(tag)
-            degree.to_json()
-
 
 class AnalyticsNCSUExplorer(Explorer):
 
@@ -58,7 +52,13 @@ class AnalyticsNCSUExplorer(Explorer):
         self.soup = BeautifulSoup(self.response, 'html.parser')
         self.starting_point = self.soup.find(string="CHRONOLOGY OF GRADUATE PROGRAMS IN ANALYTICS AND DATA SCIENCE")
         self.degree_tags = self.starting_point.find_all_next('p')
-        self.generate_degrees(AnalyticsNCSUDegree())
+        self.generate_degrees()
+
+    def generate_degrees(self):
+        for tag in self.degree_tags:
+            degree = AnalyticsNCSUDegree(tag)
+            self.degrees.append(degree)
+            degree.to_json()
 
 
 class DataSciGradProgramsExplorer(Explorer):
@@ -70,5 +70,10 @@ class DataSciGradProgramsExplorer(Explorer):
         self.soup = BeautifulSoup(self.response, 'html.parser')
         self.starting_point = self.soup.find('div', class_='stateheader-departments')
         self.degree_tags = self.starting_point.find_all_next('a', href=True)
-        self.generate_degrees(DataSciGradProgramsDegree())
+        self.generate_degrees()
 
+    def generate_degrees(self):
+        for tag in self.degree_tags:
+            degree = DataSciGradProgramsDegree(tag)
+            self.degrees.append(degree)
+            degree.to_json()
