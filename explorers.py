@@ -42,6 +42,7 @@ class AnalyticsNCSUExplorer(Explorer):
 
     def __init__(self):
         super()
+        self.degrees = []
         self.url = 'https://analytics.ncsu.edu/?page_id=4184'
         self.response = self.request_html(self.url)
         self.soup = BeautifulSoup(self.response, 'html.parser')
@@ -60,6 +61,7 @@ class DataSciGradProgramsExplorer(Explorer):
 
     def __init__(self):
         super()
+        self.degrees = []
         self.url = 'https://www.datasciencegraduateprograms.com/school-listing/#context/api/listings/prefilter'
         self.response = self.request_html(self.url)
         self.soup = BeautifulSoup(self.response, 'html.parser')
