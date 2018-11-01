@@ -8,11 +8,6 @@ from degrees import AnalyticsNCSUDegree, DataSciGradProgramsDegree
 
 class Explorer:
 
-    def __init__(self):
-        self.url = ''
-        self.degree_tags = []
-        self.degrees = []
-
     def request_html(self, url):
         """
         Download html content from 'url' using HTTP GET request.
