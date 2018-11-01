@@ -8,6 +8,11 @@ from degrees import AnalyticsNCSUDegree, DataSciGradProgramsDegree
 
 class Explorer:
 
+    def __init__(self):
+        self.url = ''
+        self.degree_tags = []
+        self.degrees = []
+
     def request_html(self, url):
         """
         Download html content from 'url' using HTTP GET request.
@@ -37,20 +42,23 @@ class Explorer:
                 and content_type is not None
                 and content_type.find('html') > -1)
 
+    def generate_degrees(self, degree_type):
+
+        for tag in self.degree_tags:
+            degree = degree_type(tag)
+            degree.to_json()
+
 
 class AnalyticsNCSUExplorer(Explorer):
 
     def __init__(self):
         super()
         self.url = 'https://analytics.ncsu.edu/?page_id=4184'
-
-        response = self.request_html(self.url)
-        soup = BeautifulSoup(response, 'html.parser')
-        starting_point = soup.find(string="CHRONOLOGY OF GRADUATE PROGRAMS IN ANALYTICS AND DATA SCIENCE")
-
-        for tag in starting_point.find_all_next('p'):
-            degree = AnalyticsNCSUDegree(tag)
-            degree.to_json()
+        self.response = self.request_html(self.url)
+        self.soup = BeautifulSoup(self.response, 'html.parser')
+        self.starting_point = self.soup.find(string="CHRONOLOGY OF GRADUATE PROGRAMS IN ANALYTICS AND DATA SCIENCE")
+        self.degree_tags = self.starting_point.find_all_next('p')
+        self.generate_degrees(AnalyticsNCSUDegree())
 
 
 class DataSciGradProgramsExplorer(Explorer):
@@ -58,11 +66,9 @@ class DataSciGradProgramsExplorer(Explorer):
     def __init__(self):
         super()
         self.url = 'https://www.datasciencegraduateprograms.com/school-listing/#context/api/listings/prefilter'
+        self.response = self.request_html(self.url)
+        self.soup = BeautifulSoup(self.response, 'html.parser')
+        self.starting_point = self.soup.find('div', class_='stateheader-departments')
+        self.degree_tags = self.starting_point.find_all_next('a', href=True)
+        self.generate_degrees(DataSciGradProgramsDegree())
 
-        response = self.request_html(self.url)
-        soup = BeautifulSoup(response, 'html.parser')
-        starting_point = soup.find('div', class_='stateheader-departments')
-
-        for degree in starting_point.find_all_next('a', href=True):
-            degree = DataSciGradProgramsDegree(degree)
-            degree.to_json()
