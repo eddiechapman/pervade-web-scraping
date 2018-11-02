@@ -114,7 +114,8 @@ class EdisonProjectExplorer(Explorer):
             if td_tags:
                 a_tags = [td.find('a', href=True) for td in td_tags]
                 for a in a_tags:
-                    self.degree_urls.append(a.get('href'))
+                    degree_url = 'http://edison-project.eu'+a.get('href')
+                    self.degree_urls.append(degree_url)
 
     def generate_edison_urls(self):
         self.edison_urls.append(self.url)
