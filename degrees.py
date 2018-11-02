@@ -18,7 +18,7 @@ class DataSciGradProgramsDegree(Degree):
         self.degree = html.parent.string
         self.university = html.find_previous('h3').string
         self.department = html.find_previous('strong').string
-        self.url = html['href']
+        self.url = html.get('href')
         self.state = html.find_previous('h2').string
         self.properties = [tag.string for tag in html.find_next('ul').find_all('li')]
         self.accredidation = html.find_next('em').string
@@ -33,7 +33,7 @@ class AnalyticsNCSUDegree(Degree):
         self.source_url = 'https://analytics.ncsu.edu/?page_id=4184'
         self.source_notes = []
         try:
-            self.url = html.a["href"]
+            self.url = html.a.get('href')
         except Exception:
             self.url = None
 
