@@ -1,8 +1,10 @@
-from degrees import AnalyticsNCSUDegree, DataSciGradProgramsDegree
-from explorers import AnalyticsNCSUExplorer, DataSciGradProgramsExplorer
+from explorers import AnalyticsNCSUExplorer, DataSciGradProgramsExplorer, EdisonProjectExplorer
 
 if __name__ == '__main__':
-    explorer = AnalyticsNCSUExplorer()
-    #explorer = DataSciGradProgramsExplorer()
-    print(explorer.degree_count)
-    #print(len(explorer.degrees))
+    # explorer = AnalyticsNCSUExplorer()
+    # print(explorer.degree_count)
+    explorer = DataSciGradProgramsExplorer()
+    print(len(explorer.degrees))
+    explorer.export_degrees('datascigradprogramsdegrees.json')
+
+    #explorer = EdisonProjectExplorer()
