@@ -23,7 +23,7 @@ class Explorer:
         try:
             with closing(get(url, stream=True)) as resp:
                 if self.is_good_response(resp):
-                    print('good response')
+                    print('good response:   ', url)
                     return resp.content
                 else:
                     return None
