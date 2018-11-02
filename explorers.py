@@ -119,5 +119,5 @@ class EdisonProjectExplorer(Explorer):
     def generate_edison_urls(self):
         self.edison_urls.append(self.url)
         for i in range(1, 14):
-            self.edison_urls.append(self.url+'?page='+i)
+            self.edison_urls.append(self.url+'?page='+str(i))
 
