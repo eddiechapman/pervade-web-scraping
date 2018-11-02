@@ -64,10 +64,30 @@ class AnalyticsNCSUDegree(Degree):
 
 class EdisonProjectDegree(Degree):
 
-    def __init__(self, html):
+    def __init__(self, html, url):
         super()
         self.source = 'Edison Project University Programs List'
-        # TODO: self.source_url = ''
+        self.source_url = url
         self.source_notes = []
 
-    # TODO: gather degree attributes from XML tree
+        try:
+            tag = html.header.h1.find('a', string=True)
+            self.degree = tag.string if tag is not None else None
+            tags = [tag for tag in html.main.stripped_strings]
+            self.description = tags[1] if tags is not None else None
+            fields = {}
+            for i in range(len(tags)):
+                if tags[i].split(' ')[0].endswith(':'):
+                    fields[tags[i]] = tags[i+1]
+            print(json.dumps(fields, indent=2))
+        except AttributeError:
+            print(html.prettify())
+
+        self.country = fields.get('Country')
+        self.university = fields.get('University')
+        self.language = fields.get('Language')
+        self.degree_type = fields.get('Level')
+        if fields.get('Courses'):
+            self.courses = fields.get('Courses').split(',')
+        self.degree_url = fields.get('Link')
+        self.academic_title = fields.get('Title')
