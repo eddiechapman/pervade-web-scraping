@@ -62,4 +62,12 @@ class AnalyticsNCSUDegree(Degree):
             self.department = None
 
 
+class EdisonProjectDegree(Degree):
 
+    def __init__(self, html):
+        super()
+        self.source = 'Edison Project University Programs List'
+        # TODO: self.source_url = ''
+        self.source_notes = []
+
+    # TODO: gather degree attributes from XML tree
