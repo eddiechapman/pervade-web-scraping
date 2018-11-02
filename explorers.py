@@ -2,6 +2,7 @@ from requests import get
 from requests.exceptions import RequestException
 from contextlib import closing
 from bs4 import BeautifulSoup
+import json
 
 from degrees import AnalyticsNCSUDegree, DataSciGradProgramsDegree, EdisonProjectDegree
 
@@ -44,6 +45,10 @@ class Explorer:
     @property
     def degree_count(self):
         return len(self.degrees)
+
+    def export_degrees(self, filename):
+        with open(filename, 'w') as outfile:
+            outfile.write(json.dumps([d.__dict__ for d in self.degrees]))
 
 
 class AnalyticsNCSUExplorer(Explorer):
@@ -104,7 +109,7 @@ class EdisonProjectExplorer(Explorer):
             soup = BeautifulSoup(response, 'html.parser')
             degree = EdisonProjectDegree(soup, url)
             self.degrees.append(degree)
-            degree.to_json()
+            #degree.to_json()
 
     def collect_degree_urls(self):
         for url in self.edison_urls:
