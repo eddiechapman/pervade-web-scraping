@@ -81,3 +81,24 @@ class DataSciGradProgramsExplorer(Explorer):
             degree = DataSciGradProgramsDegree(tag)
             self.degrees.append(degree)
             degree.to_json()
+
+
+class EdisonProjectExplorer(Explorer):
+
+    def __init__(self):
+        super()
+        self.degrees = []
+        self.url = 'http://edison-project.eu/university-programs-list'
+        self.response = self.request_html(self.url)
+        self.soup = BeautifulSoup(self.response, 'html.parser')
+
+        # TODO:
+        # self.starting_point =
+        # self.degree_tags = self.starting_point.find_all_next('a', href=True)
+        self.generate_degrees()
+
+    def generate_degrees(self):
+        for tag in self.degree_tags:
+            degree = EdisonProjectDegree(tag)
+            self.degrees.append(degree)
+            degree.to_json()
