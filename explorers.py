@@ -102,7 +102,7 @@ class EdisonProjectExplorer(Explorer):
         for url in self.degree_urls:
             response = self.request_html(url)
             soup = BeautifulSoup(response, 'html.parser')
-            degree = EdisonProjectDegree(soup)
+            degree = EdisonProjectDegree(soup, url)
             self.degrees.append(degree)
             degree.to_json()
 
