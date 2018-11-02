@@ -74,7 +74,7 @@ class DataSciGradProgramsExplorer(Explorer):
         self.generate_degrees()
 
     def generate_degrees(self):
-        response = request_html(self.url)
+        response = self.request_html(self.url)
         soup = BeautifulSoup(response, 'html.parser')
         starting_point = soup.find('div', class_='stateheader-departments')
         a_tags = starting_point.find_all_next('a', href=True)
