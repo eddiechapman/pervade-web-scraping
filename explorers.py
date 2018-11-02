@@ -3,13 +3,14 @@ from requests.exceptions import RequestException
 from contextlib import closing
 from bs4 import BeautifulSoup
 
-from degrees import AnalyticsNCSUDegree, DataSciGradProgramsDegree
+from degrees import AnalyticsNCSUDegree, DataSciGradProgramsDegree, EdisonProjectDegree
 
 
 class Explorer:
 
     def __init__(self):
         self.degrees = []
+        self.target_elements = []
 
     def request_html(self, url):
         """
@@ -51,14 +52,14 @@ class AnalyticsNCSUExplorer(Explorer):
         super()
         self.degrees = []
         self.url = 'https://analytics.ncsu.edu/?page_id=4184'
-        self.response = self.request_html(self.url)
-        self.soup = BeautifulSoup(self.response, 'html.parser')
-        self.starting_point = self.soup.find(string="CHRONOLOGY OF GRADUATE PROGRAMS IN ANALYTICS AND DATA SCIENCE")
-        self.degree_tags = self.starting_point.find_all_next('p')
         self.generate_degrees()
 
     def generate_degrees(self):
-        for tag in self.degree_tags:
+        response = self.request_html(self.url)
+        soup = BeautifulSoup(response, 'html.parser')
+        starting_point = soup.find(string="CHRONOLOGY OF GRADUATE PROGRAMS IN ANALYTICS AND DATA SCIENCE")
+        p_tags = starting_point.find_all_next('p')
+        for tag in p_tags:
             degree = AnalyticsNCSUDegree(tag)
             self.degrees.append(degree)
             degree.to_json()
@@ -70,35 +71,53 @@ class DataSciGradProgramsExplorer(Explorer):
         super()
         self.degrees = []
         self.url = 'https://www.datasciencegraduateprograms.com/school-listing/#context/api/listings/prefilter'
-        self.response = self.request_html(self.url)
-        self.soup = BeautifulSoup(self.response, 'html.parser')
-        self.starting_point = self.soup.find('div', class_='stateheader-departments')
-        self.degree_tags = self.starting_point.find_all_next('a', href=True)
         self.generate_degrees()
 
     def generate_degrees(self):
-        for tag in self.degree_tags:
-            degree = DataSciGradProgramsDegree(tag)
-            self.degrees.append(degree)
-            degree.to_json()
+        response = request_html(self.url)
+        soup = BeautifulSoup(response, 'html.parser')
+        starting_point = soup.find('div', class_='stateheader-departments')
+        a_tags = starting_point.find_all_next('a', href=True)
+        if a_tags:
+            for tag in a_tags:
+                degree = DataSciGradProgramsDegree(tag)
+                self.degrees.append(degree)
+                degree.to_json()
 
 
 class EdisonProjectExplorer(Explorer):
 
     def __init__(self):
         super()
-        self.degrees = []
         self.url = 'http://edison-project.eu/university-programs-list'
-        self.response = self.request_html(self.url)
-        self.soup = BeautifulSoup(self.response, 'html.parser')
+        self.edison_urls = []
+        self.degree_urls = []
+        self.degrees = []
 
-        # TODO:
-        # self.starting_point =
-        # self.degree_tags = self.starting_point.find_all_next('a', href=True)
+        self.generate_edison_urls()
+        self.collect_degree_urls()
         self.generate_degrees()
 
     def generate_degrees(self):
-        for tag in self.degree_tags:
-            degree = EdisonProjectDegree(tag)
+        for url in self.degree_urls:
+            response = self.request_html(url)
+            soup = BeautifulSoup(response, 'html.parser')
+            degree = EdisonProjectDegree(soup)
             self.degrees.append(degree)
             degree.to_json()
+
+    def collect_degree_urls(self):
+        for url in self.edison_urls:
+            response = self.request_html(url)
+            soup = BeautifulSoup(response, 'html.parser')
+            td_tags = soup.find_all('td', class_='views-field views-field-title')
+            if td_tags:
+                a_tags = [td.find('a', href=True) for td in td_tags]
+                for a in a_tags:
+                    self.degree_urls.append(a.get('href'))
+
+    def generate_edison_urls(self):
+        self.edison_urls.append(self.url)
+        for i in range(1, 14):
+            self.edison_urls.append(self.url+'?page='+i)
+
