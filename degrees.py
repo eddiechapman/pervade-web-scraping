@@ -68,26 +68,34 @@ class EdisonProjectDegree(Degree):
         super()
         self.source = 'Edison Project University Programs List'
         self.source_url = url
-        self.source_notes = []
+
 
         try:
+            fields = {}
             tag = html.header.h1.find('a', string=True)
             self.degree = tag.string if tag is not None else None
             tags = [tag for tag in html.main.stripped_strings]
-            self.description = tags[1] if tags is not None else None
-            fields = {}
-            for i in range(len(tags)):
-                if tags[i].split(' ')[0].endswith(':'):
-                    fields[tags[i]] = tags[i+1]
-            print(json.dumps(fields, indent=2))
+            for i in enumerate(tags):
+                if tag.split(' ').endswith(':'):
+                    fields[tag] = tags[i+1]
+            self.country = fields.get('Country:')
+            self.university = fields.get('University:')
+            self.language = fields.get('Language:')
+            self.degree_type = fields.get('Level:')
+            if fields.get('Courses:'):
+                self.courses = fields.get('Courses:').split(',')
+            self.degree_url = fields.get('Link:')
+            self.academic_title = fields.get('Title:')
+            #print(json.dumps(fields, indent=2))
         except AttributeError:
-            print(html.prettify())
+            self.degree = None
+            self.description = None
+            self.country = None
+            self.language = None
+            self.university = None
+            self.degree_type = None
+            self.courses = None
+            self.degree_url = None
+            self.academic_title = None
 
-        self.country = fields.get('Country')
-        self.university = fields.get('University')
-        self.language = fields.get('Language')
-        self.degree_type = fields.get('Level')
-        if fields.get('Courses'):
-            self.courses = fields.get('Courses').split(',')
-        self.degree_url = fields.get('Link')
-        self.academic_title = fields.get('Title')
+
