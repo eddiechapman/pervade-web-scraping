@@ -3,6 +3,7 @@ from requests.exceptions import RequestException
 from contextlib import closing
 from bs4 import BeautifulSoup
 import json
+import csv
 
 from degrees import AnalyticsNCSUDegree, DataSciGradProgramsDegree, EdisonProjectDegree
 
@@ -46,9 +47,17 @@ class Explorer:
     def degree_count(self):
         return len(self.degrees)
 
-    def export_degrees(self, filename):
+    def export_degrees_json(self, filename):
         with open(filename, 'w') as outfile:
             outfile.write(json.dumps([d.__dict__ for d in self.degrees]))
+
+    def export_degrees_csv(self, filename):
+        fieldnames = self.degrees[0].__dict__.keys()
+
+        with open(filename, 'w') as outfile:
+            writer = csv.DictWriter(outfile, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows([d.__dict__ for d in self.degrees])
 
 
 class AnalyticsNCSUExplorer(Explorer):
@@ -68,6 +77,7 @@ class AnalyticsNCSUExplorer(Explorer):
             degree = AnalyticsNCSUDegree(tag)
             self.degrees.append(degree)
             degree.to_json()
+
 
 
 class DataSciGradProgramsExplorer(Explorer):
@@ -96,7 +106,7 @@ class EdisonProjectExplorer(Explorer):
         super()
         self.url = 'http://edison-project.eu/university-programs-list'
         self.edison_urls = []
-        self.degree_urls = []
+        self.degree_urls = set()
         self.degrees = []
 
         self.generate_edison_urls()
@@ -109,7 +119,7 @@ class EdisonProjectExplorer(Explorer):
             soup = BeautifulSoup(response, 'html.parser')
             degree = EdisonProjectDegree(soup, url)
             self.degrees.append(degree)
-            #degree.to_json()
+
 
     def collect_degree_urls(self):
         for url in self.edison_urls:
@@ -120,10 +130,22 @@ class EdisonProjectExplorer(Explorer):
                 a_tags = [td.find('a', href=True) for td in td_tags]
                 for a in a_tags:
                     degree_url = 'http://edison-project.eu'+a.get('href')
-                    self.degree_urls.append(degree_url)
+                    self.degree_urls.add(degree_url)
 
     def generate_edison_urls(self):
         self.edison_urls.append(self.url)
         for i in range(1, 14):
             self.edison_urls.append(self.url+'?page='+str(i))
 
+    def export_degrees_csv(self, filename):
+        fieldnames = self.degrees[0].__dict__.keys()
+
+        with open(filename, 'w') as outfile:
+            fieldnames = [
+                'source', 'source_url', 'degree', 'description',
+                'country', 'language', 'degree_type', 'courses',
+                'degree_url', 'academic_title', 'university'
+            ]
+            writer = csv.DictWriter(outfile, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows([d.__dict__ for d in self.degrees])
